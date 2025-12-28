@@ -27,5 +27,6 @@ jobs:
           files: |
             dist/core-*
             dist/checksums.txt
-          generate_release_notes: true
+          generate_release_notes: false
+          body_path: .github/release.md
           name: ${{ github.ref_name }}
