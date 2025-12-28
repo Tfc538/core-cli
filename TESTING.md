@@ -54,11 +54,11 @@ go test -v ./... -tags=e2e
 
 ```bash
 # Run a specific unit test
-go test -v -run TestChecker_CompareVersions ./engine/update
+go test -v -run TestChecker_CompareVersions ./internal/engine/update
 
 # Run all tests in a specific package
 go test -v ./version
-go test -v ./engine/update
+go test -v ./internal/engine/update
 ```
 
 ## Unit Tests
@@ -70,13 +70,13 @@ Unit tests focus on testing individual functions and components in isolation.
 | Package | Tests | Coverage |
 |---------|-------|----------|
 | `version` | 4 | Version metadata, JSON marshaling, field names |
-| `engine/update` | 11 | Version comparison, checksum parsing, downloads |
+| `internal/engine/update` | 11 | Version comparison, checksum parsing, downloads |
 
 ### Key Test Files
 
-- `version/version_test.go` - Tests for version package
-- `engine/update/checker_test.go` - Tests for update checker
-- `engine/update/updater_test.go` - Tests for updater
+- `internal/version/version_test.go` - Tests for version package
+- `internal/engine/update/checker_test.go` - Tests for update checker
+- `internal/engine/update/updater_test.go` - Tests for updater
 
 ### Unit Test Examples
 
@@ -134,8 +134,8 @@ go test -v -short ./...
 # Run version package tests
 go test -v -short ./version
 
-# Run engine/update tests
-go test -v -short ./engine/update
+# Run internal/engine/update tests
+go test -v -short ./internal/engine/update
 ```
 
 ## Integration Tests
@@ -153,7 +153,7 @@ Integration tests verify that multiple components work correctly together.
 
 ### Key Test Files
 
-- `engine/update/integration_test.go` - Integration tests marked with `+build integration`
+- `internal/engine/update/integration_test.go` - Integration tests marked with `+build integration`
 
 ### Integration Test Examples
 
@@ -196,7 +196,7 @@ func TestIntegration_MultiPlatformAssetSelection(t *testing.T) {
 go test -v -tags=integration ./...
 
 # Run specific integration test
-go test -v -run TestIntegration_FullUpdateWorkflow -tags=integration ./engine/update
+go test -v -run TestIntegration_FullUpdateWorkflow -tags=integration ./internal/engine/update
 
 # Run integration tests with coverage
 go test -cover -tags=integration ./...
@@ -286,7 +286,7 @@ go test -cover -tags=e2e ./...
 
 ## Test Utilities
 
-Test utilities in `testutil/helpers.go` provide common test functions:
+Test utilities in `internal/testutil/helpers.go` provide common test functions:
 
 ```go
 // Create test files and directories
@@ -312,7 +312,7 @@ testutil.AssertFileExists(t, path, "message")
 | Component | Target Coverage |
 |-----------|-----------------|
 | `version` | 100% |
-| `engine/update` | 90%+ |
+| `internal/engine/update` | 90%+ |
 | `cli` | 80%+ |
 | `tui` | 60%+ (limited by Bubble Tea interaction model) |
 
@@ -327,7 +327,7 @@ go tool cover -html=coverage.out
 
 # Check coverage for specific package
 go test -cover ./version
-go test -cover ./engine/update
+go test -cover ./internal/engine/update
 ```
 
 ## Mocking Strategies

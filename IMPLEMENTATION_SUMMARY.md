@@ -32,13 +32,13 @@ CORE CLI's update and versioning subsystem has been successfully implemented wit
 
 **Clean Separation of Concerns:**
 ```
-engine/           ← Pure business logic (platform independent)
+internal/engine/           ← Pure business logic (platform independent)
 ├── update/
 │   ├── checker.go      (GitHub API, version comparison)
 │   ├── updater.go      (download, verify, atomic replace)
 │   └── types.go        (shared data structures)
 
-cli/              ← Cobra command interface (headless friendly)
+internal/cli/              ← Cobra command interface (headless friendly)
 ├── root.go             (command routing)
 ├── version.go
 ├── update.go
@@ -46,20 +46,20 @@ cli/              ← Cobra command interface (headless friendly)
 ├── update_apply.go
 └── output.go           (consistent formatting)
 
-tui/              ← Bubble Tea TUI (optional premium interface)
+internal/tui/              ← Bubble Tea TUI (optional premium interface)
 ├── app.go              (Bubble Tea model)
 ├── statusbar.go        (status bar component)
 ├── styles.go           (Lip Gloss styling)
 └── update_view.go      (update progress view)
 
-version/          ← Build metadata
+internal/version/          ← Build metadata
 ├── version.go          (ldflags injection)
 └── version_test.go
 ```
 
 **No code duplication:**
-- CLI and TUI both use identical `engine/update` logic
-- Output formatting unified through `cli/output.go`
+- CLI and TUI both use identical `internal/engine/update` logic
+- Output formatting unified through `internal/cli/output.go`
 - Shared types and interfaces
 
 ### ✅ Technical Implementation
@@ -67,7 +67,7 @@ version/          ← Build metadata
 **Version Management:**
 - Build-time metadata injection via `-X` ldflags
 - Three components: Version, GitCommit, BuildDate
-- Single source of truth in `version/version.go`
+- Single source of truth in `internal/version/version.go`
 - Easy to extend with additional metadata
 
 **Update Checking:**
@@ -164,18 +164,18 @@ Each commit:
 
 ```
 core-cli/
-├── version/
+├── internal/version/
 │   ├── version.go              (2-line exports, 15 lines logic)
 │   └── version_test.go         (2 tests)
 │
-├── engine/update/
+├── internal/engine/update/
 │   ├── types.go                (shared types)
 │   ├── checker.go              (175 lines)
 │   ├── checker_test.go         (3 tests)
 │   ├── updater.go              (230 lines)
 │   └── updater_test.go         (4 tests)
 │
-├── cli/
+├── internal/cli/
 │   ├── root.go                 (25 lines)
 │   ├── version.go              (35 lines)
 │   ├── update.go               (20 lines)
@@ -183,13 +183,13 @@ core-cli/
 │   ├── update_apply.go         (105 lines)
 │   └── output.go               (60 lines output helpers)
 │
-├── tui/
+├── internal/tui/
 │   ├── app.go                  (Bubble Tea model)
 │   ├── statusbar.go            (status bar component)
 │   ├── styles.go               (Lip Gloss styling)
 │   └── update_view.go          (progress view)
 │
-├── main.go                     (CLI/TUI routing)
+├── cmd/core/main.go                     (CLI/TUI routing)
 ├── Makefile                    (build automation)
 ├── go.mod / go.sum            (dependency management)
 ├── .gitignore

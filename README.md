@@ -175,11 +175,12 @@ CORE CLI follows a clean, layered architecture:
 
 ```
 core-cli/
-├── version/              # Version metadata package
-├── engine/update/        # Pure business logic for updates
-├── cli/                  # Cobra command definitions (CLI layer)
-├── tui/                  # Bubble Tea TUI (presentation layer)
-└── main.go               # Entry point (args routing)
+├── cmd/core/             # CLI entry point (args routing)
+└── internal/
+    ├── version/          # Version metadata package
+    ├── engine/update/    # Pure business logic for updates
+    ├── cli/              # Cobra command definitions (CLI layer)
+    └── tui/              # Bubble Tea TUI (presentation layer)
 ```
 
 ### Design Principles
@@ -192,11 +193,11 @@ core-cli/
 
 ### Key Components
 
-- **version/**: Build-time version injection via ldflags
-- **engine/update/checker**: GitHub Releases API integration
-- **engine/update/updater**: Download, verify, and atomic binary replacement
-- **cli/**: Cobra command structure with consistent output formatting
-- **tui/**: Bubble Tea application with status bar and update view
+- **internal/version/**: Build-time version injection via ldflags
+- **internal/engine/update/checker**: GitHub Releases API integration
+- **internal/engine/update/updater**: Download, verify, and atomic binary replacement
+- **internal/cli/**: Cobra command structure with consistent output formatting
+- **internal/tui/**: Bubble Tea application with status bar and update view
 
 ## Updating
 
@@ -224,35 +225,35 @@ Updates are applied safely with:
 ### Project Structure
 
 ```
-version/version.go         # Version constants and Info struct
-version/version_test.go    # Version tests
+cmd/core/main.go             # CLI entry point with CLI/TUI routing
+internal/version/version.go  # Version constants and Info struct
+internal/version/version_test.go
 
-engine/update/types.go     # UpdateInfo, UpdateProgress types
-engine/update/checker.go   # GitHub Releases API integration
-engine/update/checker_test.go
-engine/update/updater.go   # Download, verify, replace logic
-engine/update/updater_test.go
+internal/engine/update/types.go     # UpdateInfo, UpdateProgress types
+internal/engine/update/checker.go   # GitHub Releases API integration
+internal/engine/update/checker_test.go
+internal/engine/update/updater.go   # Download, verify, replace logic
+internal/engine/update/updater_test.go
 
-cli/root.go                # Root command setup
-cli/version.go             # 'core version' command
-cli/update.go              # 'core update' parent command
-cli/update_check.go        # 'core update check' command
-cli/update_apply.go        # 'core update apply' command
-cli/output.go              # Output formatting utilities
+internal/cli/root.go                # Root command setup
+internal/cli/version.go             # 'core version' command
+internal/cli/update.go              # 'core update' parent command
+internal/cli/update_check.go        # 'core update check' command
+internal/cli/update_apply.go        # 'core update apply' command
+internal/cli/output.go              # Output formatting utilities
 
-tui/app.go                 # Main Bubble Tea app
-tui/styles.go              # Lip Gloss styles
-tui/statusbar.go           # Status bar component
-tui/update_view.go         # Update progress view
+internal/tui/app.go                 # Main Bubble Tea app
+internal/tui/styles.go              # Lip Gloss styles
+internal/tui/statusbar.go           # Status bar component
+internal/tui/update_view.go         # Update progress view
 
-main.go                    # Entry point with CLI/TUI routing
-Makefile                   # Build automation
+Makefile                            # Build automation
 ```
 
 ### Adding New Commands
 
-1. Create `cli/mycmd.go` with `NewMyCmd()` function
-2. Add to root command in `cli/root.go`
+1. Create `internal/cli/mycmd.go` with `NewMyCmd()` function
+2. Add to root command in `internal/cli/root.go`
 3. Follow existing patterns for output and error handling
 
 ### Testing
@@ -268,9 +269,9 @@ Makefile                   # Build automation
 Version is embedded at build time using Go's `-ldflags` flag:
 
 ```bash
--X github.com/Tfc538/core-cli/version.Version=1.0.0
--X github.com/Tfc538/core-cli/version.GitCommit=$(git rev-parse --short HEAD)
--X github.com/Tfc538/core-cli/version.BuildDate=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+-X github.com/Tfc538/core-cli/internal/version.Version=1.0.0
+-X github.com/Tfc538/core-cli/internal/version.GitCommit=$(git rev-parse --short HEAD)
+-X github.com/Tfc538/core-cli/internal/version.BuildDate=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 ```
 
 The Makefile handles this automatically.

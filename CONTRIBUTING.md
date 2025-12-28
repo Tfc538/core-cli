@@ -44,7 +44,7 @@ go test -cover ./...
 
 # Run specific package tests
 go test -v ./version
-go test -v ./engine/update
+go test -v ./internal/engine/update
 ```
 
 All tests must pass before submitting changes.
@@ -70,7 +70,7 @@ Follow these principles:
 
 Tests are required for:
 
-- New functions in `engine/` packages
+- New functions in `internal/engine/` packages
 - CLI commands
 - Version/update logic
 
@@ -300,7 +300,7 @@ Maintain CHANGELOG.md with:
 
 ### Adding a New Command
 
-1. Create `cli/mycmd.go`:
+1. Create `internal/cli/mycmd.go`:
    ```go
    func NewMyCmd() *cobra.Command {
        return &cobra.Command{
@@ -314,7 +314,7 @@ Maintain CHANGELOG.md with:
    }
    ```
 
-2. Add to root command in `cli/root.go`:
+2. Add to root command in `internal/cli/root.go`:
    ```go
    rootCmd.AddCommand(NewMyCmd())
    ```
@@ -323,16 +323,16 @@ Maintain CHANGELOG.md with:
 
 ### Adding Engine Functionality
 
-1. Create package in `engine/`: `engine/myfeature/`
+1. Create package in `internal/engine/`: `internal/engine/myfeature/`
 2. Implement logic in `myfeature.go`
 3. Add tests in `myfeature_test.go`
 4. Wire CLI commands to use the engine package
 
 ### Adding to TUI
 
-1. Create component or update `tui/app.go`
+1. Create component or update `internal/tui/app.go`
 2. Use Bubble Tea patterns for state and messages
-3. Apply styles from `tui/styles.go`
+3. Apply styles from `internal/tui/styles.go`
 4. Test interaction in TUI
 
 ## Troubleshooting
