@@ -43,17 +43,20 @@ func runUpdateCheck(jsonOutput bool) error {
 		return outputJSON(info)
 	}
 
-	// Human-readable output
-	fmt.Printf("Current version: %s\n", info.CurrentVersion)
-	fmt.Printf("Latest version:  %s\n", info.LatestVersion)
-	fmt.Printf("Update available: ")
+	// Human-readable output with formatted table
+	out := NewOutputHelper()
+
+	out.Table("Current version", info.CurrentVersion)
+	out.Table("Latest version", info.LatestVersion)
 
 	if info.UpdateAvailable {
-		fmt.Println("Yes")
-		fmt.Println("\nRun 'core update apply' to update.")
+		out.Separator()
+		out.Success("Update available!")
+		out.Separator()
+		fmt.Println("Run 'core update apply' to update.")
 	} else {
-		fmt.Println("No")
-		fmt.Println("\nYou are already on the latest version.")
+		out.Separator()
+		out.Info("You are already on the latest version.")
 	}
 
 	return nil

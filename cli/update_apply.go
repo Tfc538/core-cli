@@ -31,6 +31,8 @@ func NewUpdateApplyCmd() *cobra.Command {
 
 // runUpdateApply performs the update application.
 func runUpdateApply(skipConfirm bool) error {
+	out := NewOutputHelper()
+
 	// First, check for available updates
 	checker := update.NewChecker(update.CheckerConfig{
 		GitHubOwner:    "Tfc538",
@@ -40,33 +42,40 @@ func runUpdateApply(skipConfirm bool) error {
 
 	info, err := checker.Check()
 	if err != nil {
+		out.Error(fmt.Sprintf("Check failed: %v", err))
 		return fmt.Errorf("failed to check for updates: %w", err)
 	}
 
 	if !info.UpdateAvailable {
-		fmt.Println("You are already on the latest version.")
+		out.Info("You are already on the latest version.")
 		return nil
 	}
 
 	// Get current binary path
 	binaryPath, err := os.Executable()
 	if err != nil {
+		out.Error(fmt.Sprintf("Failed to locate binary: %v", err))
 		return fmt.Errorf("failed to determine current binary path: %w", err)
 	}
 
 	// Show confirmation prompt
 	if !skipConfirm {
-		fmt.Printf("This will update CORE CLI from %s to %s.\n", info.CurrentVersion, info.LatestVersion)
-		fmt.Printf("The binary will be replaced at: %s\n\n", binaryPath)
+		out.Heading("Update Available")
+		out.Table("Current version", info.CurrentVersion)
+		out.Table("Latest version", info.LatestVersion)
+		out.Table("Target location", binaryPath)
+		out.Separator()
 
-		response := promptUser("Continue? [y/N]: ")
+		response := promptUser("Continue with update? [y/N]: ")
 		if response != "y" && response != "Y" {
-			fmt.Println("Update cancelled.")
+			out.Info("Update cancelled.")
 			return nil
 		}
 	}
 
-	fmt.Println("\nStarting update...")
+	out.Separator()
+	out.Progress("Starting update")
+	out.Separator()
 
 	// Create updater and set up progress reporting
 	updater := update.NewUpdater(update.UpdaterConfig{
@@ -79,29 +88,33 @@ func runUpdateApply(skipConfirm bool) error {
 		switch progress.Stage {
 		case "downloading":
 			if progress.BytesTotal > 0 {
-				fmt.Printf("⬇  Downloading update... %d%% (%d MB / %d MB)\r",
-					progress.Percent,
-					progress.BytesDone/1024/1024,
-					progress.BytesTotal/1024/1024)
+				mb := progress.BytesDone / 1024 / 1024
+				totalMB := progress.BytesTotal / 1024 / 1024
+				fmt.Printf("⬇  Downloading... %d%% (%d/%d MB)\r",
+					progress.Percent, mb, totalMB)
 			}
 		case "verifying":
-			fmt.Println("⬇  Verifying checksum...              ")
-			fmt.Println("✓  Checksum verified")
+			fmt.Println("                                        ")
+			out.Progress("Verifying checksum")
 		case "replacing":
-			fmt.Println("⬇  Replacing binary...")
+			out.Success("Checksum verified")
+			out.Progress("Replacing binary")
 		case "complete":
-			fmt.Println("✓  Update complete!                    ")
+			fmt.Println("                                        ")
+			out.Success("Update complete!")
 		case "failed":
-			fmt.Printf("✗  Update failed: %v\n", progress.Error)
+			out.Error(fmt.Sprintf("Update failed: %v", progress.Error))
 		}
 	})
 
 	// Apply the update
 	if err := updater.Apply(); err != nil {
+		out.Error(fmt.Sprintf("Apply failed: %v", err))
 		return fmt.Errorf("update failed: %w", err)
 	}
 
-	fmt.Printf("\nCORE CLI updated to v%s\n", info.LatestVersion)
+	out.Separator()
+	fmt.Printf("✓ CORE CLI updated to v%s\n", info.LatestVersion)
 	return nil
 }
 
