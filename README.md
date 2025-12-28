@@ -123,6 +123,28 @@ Starting update
 ✓ CORE CLI updated to v0.2.0
 ```
 
+## Backend Service
+
+The repo also ships a minimal backend service for local development and future distribution metadata.
+
+### Run Locally
+
+```bash
+go run ./cmd/core-backend
+```
+
+Configuration (optional):
+
+- `CORE_BACKEND_HOST` (default `127.0.0.1`)
+- `CORE_BACKEND_PORT` (default `8080`)
+- `CORE_BACKEND_SHUTDOWN_TIMEOUT` (default `5s`)
+
+### Endpoints
+
+- `GET /healthz`
+- `GET /api/v1/version/latest`
+- `GET /api/v1/version/{version}`
+
 ## Building from Source
 
 ### Prerequisites
@@ -137,6 +159,14 @@ make build VERSION=0.2.0
 ```
 
 This builds the binary for your current platform as `./core`.
+
+### Build Backend
+
+```bash
+make build-backend VERSION=0.2.0
+```
+
+This builds the backend binary as `./core-backend`.
 
 ### Build for All Platforms
 
@@ -176,11 +206,14 @@ CORE CLI follows a clean, layered architecture:
 ```
 core-cli/
 ├── cmd/core/             # CLI entry point (args routing)
+├── cmd/core-backend/     # Backend entry point
 └── internal/
-    ├── version/          # Version metadata package
-    ├── engine/update/    # Pure business logic for updates
+    ├── backend/          # Backend HTTP/API + services
     ├── cli/              # Cobra command definitions (CLI layer)
-    └── tui/              # Bubble Tea TUI (presentation layer)
+    ├── config/           # Env-based configuration
+    ├── engine/update/    # Pure business logic for updates
+    ├── tui/              # Bubble Tea TUI (presentation layer)
+    └── version/          # Version metadata package
 ```
 
 ### Design Principles
@@ -194,6 +227,7 @@ core-cli/
 ### Key Components
 
 - **internal/version/**: Build-time version injection via ldflags
+- **internal/backend/**: API handlers, services, and storage/telemetry stubs
 - **internal/engine/update/checker**: GitHub Releases API integration
 - **internal/engine/update/updater**: Download, verify, and atomic binary replacement
 - **internal/cli/**: Cobra command structure with consistent output formatting
@@ -225,8 +259,15 @@ Updates are applied safely with:
 ### Project Structure
 
 ```
-cmd/core/main.go             # CLI entry point with CLI/TUI routing
-internal/version/version.go  # Version constants and Info struct
+cmd/core/main.go                    # CLI entry point with CLI/TUI routing
+cmd/core-backend/main.go            # Backend entry point
+
+internal/backend/api/               # HTTP handlers + middleware
+internal/backend/service/           # Backend business logic
+internal/backend/storage/           # Interfaces for storage backends
+internal/backend/telemetry/         # Telemetry stubs
+internal/config/backend.go          # Backend env config
+internal/version/version.go         # Version constants and Info struct
 internal/version/version_test.go
 
 internal/engine/update/types.go     # UpdateInfo, UpdateProgress types
@@ -259,6 +300,7 @@ Makefile                            # Build automation
 ### Testing
 
 - Unit tests exist for version, checker, and updater
+- Backend unit and integration tests live under `internal/backend/`
 - Tests use mock HTTP servers for network operations
 - All tests can run offline without external dependencies
 

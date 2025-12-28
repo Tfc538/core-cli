@@ -2,14 +2,18 @@
 
 ## Project Structure & Module Organization
 - `cmd/core/main.go`: entry point, routes CLI vs TUI.
+- `cmd/core-backend/main.go`: backend entry point.
 - `internal/cli/`: Cobra commands and output formatting.
 - `internal/engine/update/`: update checker/updater business logic.
+- `internal/backend/`: API handlers, services, and storage/telemetry stubs.
+- `internal/config/`: backend config loading.
 - `internal/tui/`: Bubble Tea UI and Lip Gloss styles.
 - `internal/version/`: build-time version metadata.
 - Tests live alongside packages (`*_test.go`), plus `e2e_test.go` and `internal/testutil/`.
 
 ## Build, Test, and Development Commands
 - `make build VERSION=0.2.0`: build current platform binary as `./core`.
+- `make build-backend VERSION=0.2.0`: build backend binary as `./core-backend`.
 - `make build-all VERSION=0.2.0`: cross-compile into `./dist/`.
 - `make test`: run all tests (`go test -v ./...`).
 - `make checksums`: build all binaries and create `./dist/checksums.txt`.
@@ -25,7 +29,7 @@
 ## Testing Guidelines
 - Framework: Go `testing` with `httptest` for HTTP mocks.
 - Test names: `TestFunction_Condition_Expected`.
-- Coverage targets: `internal/version` 100%, `internal/engine/update` 90%+, `internal/cli` 80%+, `internal/tui` 60%+.
+- Coverage targets: `internal/version` 100%, `internal/engine/update` 90%+, `internal/cli` 80%+, `internal/tui` 60%+, `internal/backend` baseline coverage for handlers/services.
 - Check coverage: `go test -coverprofile=coverage.out ./...` then `go tool cover -html=coverage.out`.
 
 ## Commit & Pull Request Guidelines
