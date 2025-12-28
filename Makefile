@@ -1,4 +1,4 @@
-.PHONY: build build-all build-backend test clean checksums help
+.PHONY: build build-all build-cli build-backend test clean checksums help
 
 # Version configuration
 VERSION ?= dev
@@ -19,9 +19,10 @@ DIST_DIR := dist
 help:
 	@echo "CORE CLI Build Targets:"
 	@echo ""
-	@echo "  make build              Build for current platform"
-	@echo "  make build-all          Build for all supported platforms"
+	@echo "  make build              Build CLI + backend for current platform"
+	@echo "  make build-cli          Build CLI for current platform"
 	@echo "  make build-backend      Build backend for current platform"
+	@echo "  make build-all          Build all executables for all supported platforms"
 	@echo "  make VERSION=1.0.0      Build with specific version (default: dev)"
 	@echo "  make test               Run tests"
 	@echo "  make clean              Remove build artifacts"
@@ -34,25 +35,33 @@ help:
 	@echo "  - darwin-arm64"
 	@echo "  - windows-amd64"
 
-# Build for current platform
-build: clean
+# Build for current platform (CLI + backend)
+build: clean build-cli build-backend
+
+# Build CLI for current platform
+build-cli:
 	@echo "Building CORE CLI v$(VERSION)..."
 	go build -ldflags "$(LDFLAGS)" -o core ./cmd/core
 	@echo "✓ Built: ./core"
 
 # Build for all supported platforms
 build-all: clean
-	@echo "Building CORE CLI v$(VERSION) for all platforms..."
-	@mkdir -p $(DIST_DIR)
-	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-linux-amd64 ./cmd/core
-	GOOS=linux GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-linux-arm64 ./cmd/core
-	GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-darwin-amd64 ./cmd/core
-	GOOS=darwin GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-darwin-arm64 ./cmd/core
-	GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-windows-amd64.exe ./cmd/core
+	@echo "Building CORE executables v$(VERSION) for all platforms..."
+	@mkdir -p $(DIST_DIR)/core $(DIST_DIR)/core-backend
+	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core/core-linux-amd64 ./cmd/core
+	GOOS=linux GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core/core-linux-arm64 ./cmd/core
+	GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core/core-darwin-amd64 ./cmd/core
+	GOOS=darwin GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core/core-darwin-arm64 ./cmd/core
+	GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core/core-windows-amd64.exe ./cmd/core
+	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-backend/core-backend-linux-amd64 ./cmd/core-backend
+	GOOS=linux GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-backend/core-backend-linux-arm64 ./cmd/core-backend
+	GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-backend/core-backend-darwin-amd64 ./cmd/core-backend
+	GOOS=darwin GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-backend/core-backend-darwin-arm64 ./cmd/core-backend
+	GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-backend/core-backend-windows-amd64.exe ./cmd/core-backend
 	@echo "✓ Built all binaries in ./dist"
 
 # Build backend for current platform
-build-backend: clean
+build-backend:
 	@echo "Building CORE Backend v$(VERSION)..."
 	go build -ldflags "$(LDFLAGS)" -o core-backend ./cmd/core-backend
 	@echo "✓ Built: ./core-backend"
@@ -66,7 +75,7 @@ test:
 # Generate checksums for dist binaries
 checksums: build-all
 	@echo "Generating checksums..."
-	@cd $(DIST_DIR) && sha256sum core-* > checksums.txt
+	@cd $(DIST_DIR) && find core core-backend -type f -maxdepth 1 -print0 | xargs -0 sha256sum > checksums.txt
 	@echo "✓ Checksums generated in ./dist/checksums.txt"
 
 # Clean build artifacts

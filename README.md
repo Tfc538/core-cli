@@ -158,7 +158,15 @@ Configuration (optional):
 make build VERSION=0.2.0
 ```
 
-This builds the binary for your current platform as `./core`.
+This builds the CLI and backend binaries for your current platform as `./core` and `./core-backend`.
+
+### Build CLI Only
+
+```bash
+make build-cli VERSION=0.2.0
+```
+
+This builds the CLI binary for your current platform as `./core`.
 
 ### Build Backend
 
@@ -175,11 +183,16 @@ make build-all VERSION=0.2.0
 ```
 
 Outputs binaries to `./dist/`:
-- `core-linux-amd64`
-- `core-linux-arm64`
-- `core-darwin-amd64`
-- `core-darwin-arm64`
-- `core-windows-amd64.exe`
+- `dist/core/core-linux-amd64`
+- `dist/core/core-linux-arm64`
+- `dist/core/core-darwin-amd64`
+- `dist/core/core-darwin-arm64`
+- `dist/core/core-windows-amd64.exe`
+- `dist/core-backend/core-backend-linux-amd64`
+- `dist/core-backend/core-backend-linux-arm64`
+- `dist/core-backend/core-backend-darwin-amd64`
+- `dist/core-backend/core-backend-darwin-arm64`
+- `dist/core-backend/core-backend-windows-amd64.exe`
 
 ### Generate Checksums
 
