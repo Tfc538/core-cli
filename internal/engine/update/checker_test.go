@@ -34,28 +34,28 @@ func TestChecker_Check(t *testing.T) {
 	}))
 	defer server.Close()
 
-	// Override the API URL for testing (we'll use a custom checker instead)
-	checker := &Checker{
-		config: CheckerConfig{
-			GitHubOwner:    "test-owner",
-			GitHubRepo:     "test-repo",
-			CurrentVersion: "1.0.0",
-		},
-	}
+	checker := NewChecker(CheckerConfig{
+		APIBaseURL:     server.URL,
+		GitHubOwner:    "test-owner",
+		GitHubRepo:     "test-repo",
+		CurrentVersion: "1.0.0",
+	})
 
-	// Test version comparison
-	updateAvailable, compatible := checker.compareVersions("1.0.0", "1.2.0")
-	if !updateAvailable {
+	info, err := checker.Check()
+	if err != nil {
+		t.Fatalf("expected check to succeed, got error: %v", err)
+	}
+	if !info.UpdateAvailable {
 		t.Error("Expected update to be available for 1.0.0 -> 1.2.0")
 	}
-	if !compatible {
+	if !info.Compatible {
 		t.Error("Expected update to be compatible")
 	}
-
-	// Test no update needed
-	updateAvailable, compatible = checker.compareVersions("1.2.0", "1.0.0")
-	if updateAvailable {
-		t.Error("Expected no update to be available for 1.2.0 -> 1.0.0")
+	if info.LatestVersion != "1.2.0" {
+		t.Errorf("Expected latest version 1.2.0, got %s", info.LatestVersion)
+	}
+	if info.DownloadURL == "" {
+		t.Error("Expected a download URL for current platform")
 	}
 
 	// Test version parsing
@@ -106,17 +106,17 @@ func TestChecker_CompareVersions(t *testing.T) {
 	checker := NewChecker(CheckerConfig{})
 
 	tests := []struct {
-		current         string
-		latest          string
-		wantAvailable   bool
-		wantCompatible  bool
+		current        string
+		latest         string
+		wantAvailable  bool
+		wantCompatible bool
 	}{
-		{"1.0.0", "1.1.0", true, true},   // Update available
-		{"1.1.0", "1.0.0", false, true},  // No update
-		{"1.0.0", "1.0.0", false, true},  // Same version
-		{"dev", "1.0.0", true, true},     // dev version gets update
-		{"1.0.0-beta", "1.0.0", true, true}, // Pre-release update
-		{"2.0.0", "1.9.9", false, true},  // Major version ahead
+		{"1.0.0", "1.1.0", true, true},            // Update available
+		{"1.1.0", "1.0.0", false, true},           // No update
+		{"1.0.0", "1.0.0", false, true},           // Same version
+		{"dev", "1.0.0", true, true},              // dev version gets update
+		{"1.0.0-beta", "1.0.0", true, true},       // Pre-release update
+		{"2.0.0", "1.9.9", false, true},           // Major version ahead
 		{"1.0.0-alpha", "1.0.0-beta", true, true}, // Pre-release comparison
 	}
 

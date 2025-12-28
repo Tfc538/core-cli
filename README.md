@@ -348,6 +348,13 @@ The updater automatically:
 2. Restores it if replacement fails
 3. Never corrupts or removes your binary
 
+## License
+
+CORE CLI is licensed under the Mozilla Public License 2.0 (MPL-2.0).
+
+For licensing questions or commercial inquiries, contact:
+Tim Gatzke — core@coreofficialhq.com
+
 ### How often are releases published?
 
 Release schedule depends on the maintainers. Check GitHub Releases for latest versions.

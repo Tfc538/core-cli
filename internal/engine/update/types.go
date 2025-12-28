@@ -13,6 +13,7 @@ type UpdateInfo struct {
 
 // CheckerConfig contains configuration for the update checker.
 type CheckerConfig struct {
+	APIBaseURL     string
 	GitHubOwner    string
 	GitHubRepo     string
 	CurrentVersion string
