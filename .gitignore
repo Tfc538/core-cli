@@ -1,6 +1,8 @@
 # Binaries
 /core
 /core.exe
+/core-backend
+/core-backend.exe
 /dist/
 
 # Build artifacts

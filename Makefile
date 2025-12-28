@@ -1,4 +1,4 @@
-.PHONY: build build-all test clean checksums help
+.PHONY: build build-all build-backend test clean checksums help
 
 # Version configuration
 VERSION ?= dev
@@ -21,6 +21,7 @@ help:
 	@echo ""
 	@echo "  make build              Build for current platform"
 	@echo "  make build-all          Build for all supported platforms"
+	@echo "  make build-backend      Build backend for current platform"
 	@echo "  make VERSION=1.0.0      Build with specific version (default: dev)"
 	@echo "  make test               Run tests"
 	@echo "  make clean              Remove build artifacts"
@@ -50,6 +51,12 @@ build-all: clean
 	GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-windows-amd64.exe ./cmd/core
 	@echo "✓ Built all binaries in ./dist"
 
+# Build backend for current platform
+build-backend: clean
+	@echo "Building CORE Backend v$(VERSION)..."
+	go build -ldflags "$(LDFLAGS)" -o core-backend ./cmd/core-backend
+	@echo "✓ Built: ./core-backend"
+
 # Run tests
 test:
 	@echo "Running tests..."
@@ -66,5 +73,6 @@ checksums: build-all
 clean:
 	@echo "Cleaning..."
 	rm -f core
+	rm -f core-backend
 	rm -rf $(DIST_DIR)
 	@echo "✓ Cleaned"
