@@ -10,6 +10,7 @@ import (
 	"syscall"
 
 	"github.com/Tfc538/core-cli/internal/backend/api"
+	backendversion "github.com/Tfc538/core-cli/internal/backend/service/version"
 	"github.com/Tfc538/core-cli/internal/config"
 )
 
@@ -25,7 +26,19 @@ func main() {
 		os.Exit(1)
 	}
 
-	handler := api.NewHandler(api.HandlerOptions{ServiceName: serviceName})
+	versionProvider := backendversion.NewInMemoryProvider([]backendversion.Info{
+		{
+			Version:   "0.1.0",
+			Commit:    "placeholder",
+			BuildDate: "2025-01-01T00:00:00Z",
+		},
+	})
+	versionService := backendversion.NewService(versionProvider)
+
+	handler := api.NewHandler(api.HandlerOptions{
+		ServiceName: serviceName,
+		Version:     versionService,
+	})
 
 	srv := &http.Server{
 		Addr:              cfg.Addr(),
