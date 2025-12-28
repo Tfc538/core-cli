@@ -77,7 +77,7 @@ test:
 # Generate checksums for dist binaries
 checksums: build-all
 	@echo "Generating checksums..."
-	@cd $(DIST_DIR) && find core core-backend -type f -maxdepth 1 -print0 | xargs -0 sha256sum > checksums.txt
+	@cd $(DIST_DIR) && find core core-backend -maxdepth 1 -type f -print0 | xargs -0 sha256sum > checksums.txt
 	@echo "✓ Checksums generated in ./dist/checksums.txt"
 
 # Clean build artifacts
