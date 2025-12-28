@@ -1,3 +1,4 @@
+//go:build e2e
 // +build e2e
 
 package main
@@ -7,8 +8,20 @@ import (
 	"encoding/json"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"testing"
 )
+
+func coreBinaryPath(t *testing.T) string {
+	t.Helper()
+
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("failed to get working directory: %v", err)
+	}
+
+	return filepath.Clean(filepath.Join(wd, "..", "..", "dist", "core", "core"))
+}
 
 // TestE2E_VersionCommand tests the `core version` command.
 func TestE2E_VersionCommand(t *testing.T) {
@@ -16,7 +29,7 @@ func TestE2E_VersionCommand(t *testing.T) {
 		t.Skip("skipping e2e test in short mode")
 	}
 
-	cmd := exec.Command("./core", "version")
+	cmd := exec.Command(coreBinaryPath(t), "version")
 	output, err := cmd.Output()
 	if err != nil {
 		t.Fatalf("core version failed: %v", err)
@@ -42,7 +55,7 @@ func TestE2E_VersionJSONOutput(t *testing.T) {
 		t.Skip("skipping e2e test in short mode")
 	}
 
-	cmd := exec.Command("./core", "version", "--json")
+	cmd := exec.Command(coreBinaryPath(t), "version", "--json")
 	output, err := cmd.Output()
 	if err != nil {
 		t.Fatalf("core version --json failed: %v", err)
@@ -78,7 +91,8 @@ func TestE2E_UpdateCheckCommand(t *testing.T) {
 		t.Skip("skipping e2e test in short mode")
 	}
 
-	cmd := exec.Command("./core", "update", "check")
+	cmd := exec.Command(coreBinaryPath(t), "update", "check")
+	cmd.Env = append(os.Environ(), "CORE_UPDATE_API_BASE=http://127.0.0.1:9")
 	output, err := cmd.Output()
 	if err != nil {
 		// It's OK if check fails (no release yet), as long as the command runs
@@ -98,7 +112,8 @@ func TestE2E_UpdateCheckJSONOutput(t *testing.T) {
 		t.Skip("skipping e2e test in short mode")
 	}
 
-	cmd := exec.Command("./core", "update", "check", "--json")
+	cmd := exec.Command(coreBinaryPath(t), "update", "check", "--json")
+	cmd.Env = append(os.Environ(), "CORE_UPDATE_API_BASE=http://127.0.0.1:9")
 	output, err := cmd.Output()
 
 	// Parse as JSON if successful
@@ -126,7 +141,7 @@ func TestE2E_HelpCommand(t *testing.T) {
 		t.Skip("skipping e2e test in short mode")
 	}
 
-	cmd := exec.Command("./core", "--help")
+	cmd := exec.Command(coreBinaryPath(t), "--help")
 	output, err := cmd.Output()
 	if err != nil {
 		t.Fatalf("core --help failed: %v", err)
@@ -148,7 +163,7 @@ func TestE2E_VersionSubcommandHelp(t *testing.T) {
 		t.Skip("skipping e2e test in short mode")
 	}
 
-	cmd := exec.Command("./core", "version", "--help")
+	cmd := exec.Command(coreBinaryPath(t), "version", "--help")
 	output, err := cmd.Output()
 	if err != nil {
 		t.Fatalf("core version --help failed: %v", err)
@@ -166,7 +181,7 @@ func TestE2E_UpdateSubcommandHelp(t *testing.T) {
 		t.Skip("skipping e2e test in short mode")
 	}
 
-	cmd := exec.Command("./core", "update", "--help")
+	cmd := exec.Command(coreBinaryPath(t), "update", "--help")
 	output, err := cmd.Output()
 	if err != nil {
 		t.Fatalf("core update --help failed: %v", err)
@@ -188,7 +203,7 @@ func TestE2E_UpdateCheckSubcommandHelp(t *testing.T) {
 		t.Skip("skipping e2e test in short mode")
 	}
 
-	cmd := exec.Command("./core", "update", "check", "--help")
+	cmd := exec.Command(coreBinaryPath(t), "update", "check", "--help")
 	output, err := cmd.Output()
 	if err != nil {
 		t.Fatalf("core update check --help failed: %v", err)
