@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/Tfc538/core-cli/engine/update"
-	"github.com/Tfc538/core-cli/version"
+	"github.com/Tfc538/core-cli/internal/engine/update"
+	"github.com/Tfc538/core-cli/internal/version"
 )
 
 // NewUpdateCheckCmd creates the `core update check` command.

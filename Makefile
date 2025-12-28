@@ -9,9 +9,9 @@ BUILD_DATE := $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
 PACKAGE := github.com/Tfc538/core-cli
 
 # LDFLAGS for version injection
-LDFLAGS := -X '$(PACKAGE)/version.Version=$(VERSION)' \
-           -X '$(PACKAGE)/version.GitCommit=$(GIT_COMMIT)' \
-           -X '$(PACKAGE)/version.BuildDate=$(BUILD_DATE)'
+LDFLAGS := -X '$(PACKAGE)/internal/version.Version=$(VERSION)' \
+           -X '$(PACKAGE)/internal/version.GitCommit=$(GIT_COMMIT)' \
+           -X '$(PACKAGE)/internal/version.BuildDate=$(BUILD_DATE)'
 
 # Output directory
 DIST_DIR := dist

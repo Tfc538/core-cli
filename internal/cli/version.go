@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/Tfc538/core-cli/version"
+	"github.com/Tfc538/core-cli/internal/version"
 )
 
 // NewVersionCmd creates the `core version` command.

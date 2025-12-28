@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/Tfc538/core-cli/engine/update"
-	"github.com/Tfc538/core-cli/version"
+	"github.com/Tfc538/core-cli/internal/engine/update"
+	"github.com/Tfc538/core-cli/internal/version"
 )
 
 // Model is the main Bubble Tea model for the TUI.

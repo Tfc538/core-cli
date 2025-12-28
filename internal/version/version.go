@@ -4,15 +4,15 @@ import "fmt"
 
 var (
 	// Version is the semantic version of CORE CLI.
-	// Injected at build time via -X flag: -X github.com/Tfc538/core-cli/version.Version=1.0.0
+	// Injected at build time via -X flag: -X github.com/Tfc538/core-cli/internal/version.Version=1.0.0
 	Version = "dev"
 
 	// GitCommit is the short git commit hash.
-	// Injected at build time: -X github.com/Tfc538/core-cli/version.GitCommit=$(git rev-parse --short HEAD)
+	// Injected at build time: -X github.com/Tfc538/core-cli/internal/version.GitCommit=$(git rev-parse --short HEAD)
 	GitCommit = "unknown"
 
 	// BuildDate is the timestamp when the binary was built (RFC3339 format).
-	// Injected at build time: -X github.com/Tfc538/core-cli/version.BuildDate=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+	// Injected at build time: -X github.com/Tfc538/core-cli/internal/version.BuildDate=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 	BuildDate = "unknown"
 )
 
