@@ -10,7 +10,7 @@ type HandlerOptions struct {
 
 // NewHandler builds the HTTP handler tree for the backend service.
 func NewHandler(opts HandlerOptions) http.Handler {
-	_ = opts
 	mux := http.NewServeMux()
+	mux.Handle("/healthz", HealthHandler{ServiceName: opts.ServiceName})
 	return mux
 }
