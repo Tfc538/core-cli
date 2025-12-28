@@ -81,6 +81,8 @@ core update check
 core update check --json
 ```
 
+For private repos or higher rate limits, set `CORE_GITHUB_TOKEN` (or `GH_TOKEN`/`GITHUB_TOKEN`) with access to the repo.
+
 Example output:
 ```
 Current version: 0.1.0

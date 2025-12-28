@@ -75,7 +75,18 @@ func (c *Checker) getLatestRelease() (*GitHubRelease, error) {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/latest",
 		c.config.GitHubOwner, c.config.GitHubRepo)
 
-	resp, err := c.client.Get(url)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create GitHub request: %w", err)
+	}
+
+	token := strings.TrimSpace(c.config.GitHubToken)
+	if token != "" {
+		req.Header.Set("Authorization", "Bearer "+token)
+		req.Header.Set("Accept", "application/vnd.github+json")
+	}
+
+	resp, err := c.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch GitHub release: %w", err)
 	}

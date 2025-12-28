@@ -32,6 +32,7 @@ func runUpdateCheck(jsonOutput bool) error {
 		GitHubOwner:    "Tfc538",
 		GitHubRepo:     "core-cli",
 		CurrentVersion: version.Version,
+		GitHubToken:    githubToken(),
 	})
 
 	info, err := checker.Check()

@@ -16,6 +16,7 @@ type CheckerConfig struct {
 	GitHubOwner    string
 	GitHubRepo     string
 	CurrentVersion string
+	GitHubToken    string // Optional token for private repos or higher rate limits
 }
 
 // UpdateProgress represents the progress of a download or update operation.
