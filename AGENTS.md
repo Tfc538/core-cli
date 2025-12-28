@@ -12,9 +12,9 @@
 - Tests live alongside packages (`*_test.go`), plus `e2e_test.go` and `internal/testutil/`.
 
 ## Build, Test, and Development Commands
-- `make build VERSION=0.2.0`: build CLI + backend as `./core` and `./core-backend`.
-- `make build-cli VERSION=0.2.0`: build CLI binary as `./core`.
-- `make build-backend VERSION=0.2.0`: build backend binary as `./core-backend`.
+- `make build VERSION=0.2.0`: build CLI + backend as `./dist/core/core` and `./dist/core-backend/core-backend`.
+- `make build-cli VERSION=0.2.0`: build CLI binary as `./dist/core/core`.
+- `make build-backend VERSION=0.2.0`: build backend binary as `./dist/core-backend/core-backend`.
 - `make build-all VERSION=0.2.0`: cross-compile into `./dist/`.
 - `make test`: run all tests (`go test -v ./...`).
 - `make checksums`: build all binaries and create `./dist/checksums.txt`.

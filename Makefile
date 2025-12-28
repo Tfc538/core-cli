@@ -41,8 +41,9 @@ build: clean build-cli build-backend
 # Build CLI for current platform
 build-cli:
 	@echo "Building CORE CLI v$(VERSION)..."
-	go build -ldflags "$(LDFLAGS)" -o core ./cmd/core
-	@echo "✓ Built: ./core"
+	@mkdir -p $(DIST_DIR)/core
+	go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core/core ./cmd/core
+	@echo "✓ Built: $(DIST_DIR)/core/core"
 
 # Build for all supported platforms
 build-all: clean
@@ -63,8 +64,9 @@ build-all: clean
 # Build backend for current platform
 build-backend:
 	@echo "Building CORE Backend v$(VERSION)..."
-	go build -ldflags "$(LDFLAGS)" -o core-backend ./cmd/core-backend
-	@echo "✓ Built: ./core-backend"
+	@mkdir -p $(DIST_DIR)/core-backend
+	go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-backend/core-backend ./cmd/core-backend
+	@echo "✓ Built: $(DIST_DIR)/core-backend/core-backend"
 
 # Run tests
 test:
@@ -81,7 +83,5 @@ checksums: build-all
 # Clean build artifacts
 clean:
 	@echo "Cleaning..."
-	rm -f core
-	rm -f core-backend
 	rm -rf $(DIST_DIR)
 	@echo "✓ Cleaned"

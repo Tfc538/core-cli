@@ -158,7 +158,7 @@ Configuration (optional):
 make build VERSION=0.2.0
 ```
 
-This builds the CLI and backend binaries for your current platform as `./core` and `./core-backend`.
+This builds the CLI and backend binaries for your current platform as `./dist/core/core` and `./dist/core-backend/core-backend`.
 
 ### Build CLI Only
 
@@ -166,7 +166,7 @@ This builds the CLI and backend binaries for your current platform as `./core` a
 make build-cli VERSION=0.2.0
 ```
 
-This builds the CLI binary for your current platform as `./core`.
+This builds the CLI binary for your current platform as `./dist/core/core`.
 
 ### Build Backend
 
@@ -174,7 +174,7 @@ This builds the CLI binary for your current platform as `./core`.
 make build-backend VERSION=0.2.0
 ```
 
-This builds the backend binary as `./core-backend`.
+This builds the backend binary as `./dist/core-backend/core-backend`.
 
 ### Build for All Platforms
 
