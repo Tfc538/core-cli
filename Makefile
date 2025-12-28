@@ -36,18 +36,18 @@ help:
 # Build for current platform
 build: clean
 	@echo "Building CORE CLI v$(VERSION)..."
-	go build -ldflags "$(LDFLAGS)" -o core ./main.go
+	go build -ldflags "$(LDFLAGS)" -o core ./cmd/core
 	@echo "✓ Built: ./core"
 
 # Build for all supported platforms
 build-all: clean
 	@echo "Building CORE CLI v$(VERSION) for all platforms..."
 	@mkdir -p $(DIST_DIR)
-	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-linux-amd64
-	GOOS=linux GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-linux-arm64
-	GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-darwin-amd64
-	GOOS=darwin GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-darwin-arm64
-	GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-windows-amd64.exe
+	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-linux-amd64 ./cmd/core
+	GOOS=linux GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-linux-arm64 ./cmd/core
+	GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-darwin-amd64 ./cmd/core
+	GOOS=darwin GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-darwin-arm64 ./cmd/core
+	GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/core-windows-amd64.exe ./cmd/core
 	@echo "✓ Built all binaries in ./dist"
 
 # Run tests

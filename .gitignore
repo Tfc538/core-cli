@@ -1,7 +1,7 @@
 # Binaries
-core
-core.exe
-dist/
+/core
+/core.exe
+/dist/
 
 # Build artifacts
 *.o
