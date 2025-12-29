@@ -1,17 +1,22 @@
-# CORE CLI v0.1.0
+# CORE CLI v0.1.1
 
 ## Highlights
-- Initial CLI with version metadata and JSON output.
-- Update checks and apply flow with checksum verification.
-- TUI status view with update prompts.
-- Tests: unit, integration, and e2e coverage.
+- Monorepo layout with separate CLI and backend entrypoints.
+- Backend v0 foundation with health/version endpoints and graceful shutdown.
+- Docker image for backend with distroless runtime.
+- Update checker now targets `https://cli.api.coreofficialhq.com`.
 
 ## Binaries
-- `core-linux-amd64`
-- `core-linux-arm64`
-- `core-darwin-amd64`
-- `core-darwin-arm64`
-- `core-windows-amd64.exe`
+- `core/core-linux-amd64`
+- `core/core-linux-arm64`
+- `core/core-darwin-amd64`
+- `core/core-darwin-arm64`
+- `core/core-windows-amd64.exe`
+- `core-backend/core-backend-linux-amd64`
+- `core-backend/core-backend-linux-arm64`
+- `core-backend/core-backend-darwin-amd64`
+- `core-backend/core-backend-darwin-arm64`
+- `core-backend/core-backend-windows-amd64.exe`
 
 ## Checksums
 - `checksums.txt` (SHA256)
