@@ -4,7 +4,7 @@
 - Monorepo layout with separate CLI and backend entrypoints.
 - Backend v0 foundation with health/version endpoints and graceful shutdown.
 - Docker image for backend with distroless runtime.
-- Update checker now targets `https://cli.api.coreofficialhq.com`.
+- Update checker now targets `https://api-cli.coreofficialhq.com`.
 
 ## Binaries
 - `core/core-linux-amd64`
