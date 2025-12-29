@@ -12,7 +12,7 @@ import (
 	"github.com/Masterminds/semver/v3"
 )
 
-const defaultAPIBaseURL = "https://cli.api.coreofficialhq.com"
+const defaultAPIBaseURL = "https://api-cli.coreofficialhq.com"
 
 // Checker is responsible for checking GitHub Releases for updates.
 type Checker struct {
