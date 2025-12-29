@@ -9,36 +9,52 @@ import (
 )
 
 func TestChecker_Check(t *testing.T) {
-	// Mock GitHub API server
+	// Mock core API and GitHub API server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		release := GitHubRelease{
-			TagName: "v1.2.0",
-			Body:    "## Changes\n- New feature\n- Bug fixes",
-			Assets: []GitHubAsset{
-				{
-					Name:        "core-linux-amd64",
-					DownloadURL: "https://github.com/user/repo/releases/download/v1.2.0/core-linux-amd64",
+		switch r.URL.Path {
+		case "/api/v1/version/latest":
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(coreVersionResponse{
+				Status: "ok",
+				Data: coreVersionData{
+					Version:   "1.2.0",
+					Commit:    "abc123",
+					BuildDate: "2025-01-01T00:00:00Z",
 				},
-				{
-					Name:        "core-darwin-amd64",
-					DownloadURL: "https://github.com/user/repo/releases/download/v1.2.0/core-darwin-amd64",
+			})
+		case "/repos/test-owner/test-repo/releases/latest":
+			release := GitHubRelease{
+				TagName: "v1.2.0",
+				Body:    "## Changes\n- New feature\n- Bug fixes",
+				Assets: []GitHubAsset{
+					{
+						Name:        "core-linux-amd64",
+						DownloadURL: "https://github.com/user/repo/releases/download/v1.2.0/core-linux-amd64",
+					},
+					{
+						Name:        "core-darwin-amd64",
+						DownloadURL: "https://github.com/user/repo/releases/download/v1.2.0/core-darwin-amd64",
+					},
+					{
+						Name:        "checksums.txt",
+						DownloadURL: "https://github.com/user/repo/releases/download/v1.2.0/checksums.txt",
+					},
 				},
-				{
-					Name:        "checksums.txt",
-					DownloadURL: "https://github.com/user/repo/releases/download/v1.2.0/checksums.txt",
-				},
-			},
+			}
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(release)
+		default:
+			http.NotFound(w, r)
 		}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(release)
 	}))
 	defer server.Close()
 
 	checker := NewChecker(CheckerConfig{
-		APIBaseURL:     server.URL,
-		GitHubOwner:    "test-owner",
-		GitHubRepo:     "test-repo",
-		CurrentVersion: "1.0.0",
+		APIBaseURL:       server.URL,
+		GitHubAPIBaseURL: server.URL,
+		GitHubOwner:      "test-owner",
+		GitHubRepo:       "test-repo",
+		CurrentVersion:   "1.0.0",
 	})
 
 	info, err := checker.Check()
@@ -215,9 +231,11 @@ func TestChecker_APIErrors(t *testing.T) {
 
 			// Create checker with mock server URL
 			checker := NewChecker(CheckerConfig{
-				GitHubOwner:    "test",
-				GitHubRepo:     "test",
-				CurrentVersion: "1.0.0",
+				APIBaseURL:       server.URL,
+				GitHubAPIBaseURL: server.URL,
+				GitHubOwner:      "test",
+				GitHubRepo:       "test",
+				CurrentVersion:   "1.0.0",
 			})
 
 			// Since we can't override the API URL directly, we test error handling logic
@@ -237,9 +255,11 @@ func TestChecker_InvalidJSON(t *testing.T) {
 	defer server.Close()
 
 	checker := NewChecker(CheckerConfig{
-		GitHubOwner:    "test",
-		GitHubRepo:     "test",
-		CurrentVersion: "1.0.0",
+		APIBaseURL:       server.URL,
+		GitHubAPIBaseURL: server.URL,
+		GitHubOwner:      "test",
+		GitHubRepo:       "test",
+		CurrentVersion:   "1.0.0",
 	})
 
 	_, err := checker.Check()

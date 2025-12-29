@@ -30,11 +30,12 @@ func NewUpdateCheckCmd() *cobra.Command {
 // runUpdateCheck performs the update check.
 func runUpdateCheck(jsonOutput bool) error {
 	checker := update.NewChecker(update.CheckerConfig{
-		APIBaseURL:     os.Getenv("CORE_UPDATE_API_BASE"),
-		GitHubOwner:    "Tfc538",
-		GitHubRepo:     "core-cli",
-		CurrentVersion: version.Version,
-		GitHubToken:    githubToken(),
+		APIBaseURL:       os.Getenv("CORE_UPDATE_API_BASE"),
+		GitHubAPIBaseURL: os.Getenv("CORE_GITHUB_API_BASE"),
+		GitHubOwner:      "Tfc538",
+		GitHubRepo:       "core-cli",
+		CurrentVersion:   version.Version,
+		GitHubToken:      githubToken(),
 	})
 
 	info, err := checker.Check()

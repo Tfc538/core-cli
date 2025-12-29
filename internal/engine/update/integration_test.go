@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 package update
@@ -24,7 +25,18 @@ func TestIntegration_FullUpdateWorkflow(t *testing.T) {
 	checksumContent := fmt.Sprintf("%x  core-linux-amd64\n", sha256.Sum256(binaryContent))
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/releases/latest" {
+		switch r.URL.Path {
+		case "/api/v1/version/latest":
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(coreVersionResponse{
+				Status: "ok",
+				Data: coreVersionData{
+					Version:   "1.2.0",
+					Commit:    "abc123",
+					BuildDate: "2025-01-01T00:00:00Z",
+				},
+			})
+		case "/repos/test/test/releases/latest":
 			release := GitHubRelease{
 				TagName: "v1.2.0",
 				Body:    "## Version 1.2.0\n- New features\n- Bug fixes",
@@ -41,11 +53,13 @@ func TestIntegration_FullUpdateWorkflow(t *testing.T) {
 			}
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(release)
-		} else if r.URL.Path == "/download/binary" {
+		case "/download/binary":
 			w.Header().Set("Content-Length", fmt.Sprintf("%d", len(binaryContent)))
 			w.Write(binaryContent)
-		} else if r.URL.Path == "/download/checksums" {
+		case "/download/checksums":
 			w.Write([]byte(checksumContent))
+		default:
+			http.NotFound(w, r)
 		}
 	}))
 	defer server.Close()
@@ -54,9 +68,11 @@ func TestIntegration_FullUpdateWorkflow(t *testing.T) {
 
 	// Step 1: Check for updates
 	checker := NewChecker(CheckerConfig{
-		GitHubOwner:    "test",
-		GitHubRepo:     "test",
-		CurrentVersion: "1.0.0",
+		APIBaseURL:       server.URL,
+		GitHubAPIBaseURL: server.URL,
+		GitHubOwner:      "test",
+		GitHubRepo:       "test",
+		CurrentVersion:   "1.0.0",
 	})
 
 	updateInfo, err := checker.Check()

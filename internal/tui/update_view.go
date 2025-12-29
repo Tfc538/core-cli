@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/Tfc538/core-cli/internal/engine/update"
+	"github.com/charmbracelet/lipgloss"
 )
 
 // UpdateView displays the update progress.

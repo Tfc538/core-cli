@@ -13,11 +13,12 @@ type UpdateInfo struct {
 
 // CheckerConfig contains configuration for the update checker.
 type CheckerConfig struct {
-	APIBaseURL     string
-	GitHubOwner    string
-	GitHubRepo     string
-	CurrentVersion string
-	GitHubToken    string // Optional token for private repos or higher rate limits
+	APIBaseURL       string
+	GitHubAPIBaseURL string
+	GitHubOwner      string
+	GitHubRepo       string
+	CurrentVersion   string
+	GitHubToken      string // Optional token for private repos or higher rate limits
 }
 
 // UpdateProgress represents the progress of a download or update operation.

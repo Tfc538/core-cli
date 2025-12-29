@@ -12,7 +12,10 @@ import (
 	"github.com/Masterminds/semver/v3"
 )
 
-const defaultAPIBaseURL = "https://api-cli.coreofficialhq.com"
+const (
+	defaultAPIBaseURL       = "https://api-cli.coreofficialhq.com"
+	defaultGitHubAPIBaseURL = "https://api.github.com"
+)
 
 // Checker is responsible for checking GitHub Releases for updates.
 type Checker struct {
@@ -25,6 +28,9 @@ func NewChecker(config CheckerConfig) *Checker {
 	if strings.TrimSpace(config.APIBaseURL) == "" {
 		config.APIBaseURL = defaultAPIBaseURL
 	}
+	if strings.TrimSpace(config.GitHubAPIBaseURL) == "" {
+		config.GitHubAPIBaseURL = defaultGitHubAPIBaseURL
+	}
 
 	return &Checker{
 		config: config,
@@ -36,14 +42,29 @@ func NewChecker(config CheckerConfig) *Checker {
 
 // Check performs the update check against GitHub Releases.
 func (c *Checker) Check() (*UpdateInfo, error) {
-	// Fetch latest release from GitHub API
-	release, err := c.getLatestRelease()
-	if err != nil {
-		return nil, fmt.Errorf("failed to check for updates: %w", err)
+	var (
+		latestVersion string
+		release       *GitHubRelease
+		err           error
+	)
+
+	if c.useCoreAPI() {
+		latestVersion, err = c.getLatestVersionFromCore()
+		if err != nil {
+			return nil, fmt.Errorf("failed to check for updates: %w", err)
+		}
+		release, err = c.getLatestReleaseFromGitHub()
+		if err != nil {
+			return nil, fmt.Errorf("failed to check for updates: %w", err)
+		}
+	} else {
+		release, err = c.getLatestReleaseFromGitHub()
+		if err != nil {
+			return nil, fmt.Errorf("failed to check for updates: %w", err)
+		}
+		latestVersion = c.parseVersion(release.TagName)
 	}
 
-	// Parse version from release tag
-	latestVersion := c.parseVersion(release.TagName)
 	currentVersion := c.config.CurrentVersion
 
 	// Check if update is available
@@ -76,9 +97,67 @@ type GitHubAsset struct {
 	DownloadURL string `json:"browser_download_url"`
 }
 
-// getLatestRelease fetches the latest release from GitHub.
-func (c *Checker) getLatestRelease() (*GitHubRelease, error) {
+type coreVersionResponse struct {
+	Status string          `json:"status"`
+	Data   coreVersionData `json:"data"`
+	Error  string          `json:"error,omitempty"`
+}
+
+type coreVersionData struct {
+	Version   string `json:"version"`
+	Commit    string `json:"commit"`
+	BuildDate string `json:"build_date"`
+}
+
+func (c *Checker) useCoreAPI() bool {
+	apiBase := strings.TrimSpace(c.config.APIBaseURL)
+	if apiBase == "" {
+		return false
+	}
+
+	apiBase = strings.TrimRight(apiBase, "/")
+	githubBase := strings.TrimRight(c.config.GitHubAPIBaseURL, "/")
+	if strings.Contains(apiBase, "api.github.com") || apiBase == githubBase {
+		return false
+	}
+
+	return true
+}
+
+func (c *Checker) getLatestVersionFromCore() (string, error) {
 	baseURL := strings.TrimRight(c.config.APIBaseURL, "/")
+	url := fmt.Sprintf("%s/api/v1/version/latest", baseURL)
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return "", fmt.Errorf("failed to create core API request: %w", err)
+	}
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("failed to fetch core API version: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("core API returned %d: %s", resp.StatusCode, string(body))
+	}
+
+	var payload coreVersionResponse
+	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
+		return "", fmt.Errorf("failed to parse core API response: %w", err)
+	}
+	if payload.Status != "ok" || payload.Data.Version == "" {
+		return "", fmt.Errorf("core API returned invalid response")
+	}
+
+	return payload.Data.Version, nil
+}
+
+// getLatestReleaseFromGitHub fetches the latest release from GitHub.
+func (c *Checker) getLatestReleaseFromGitHub() (*GitHubRelease, error) {
+	baseURL := strings.TrimRight(c.config.GitHubAPIBaseURL, "/")
 	url := fmt.Sprintf("%s/repos/%s/%s/releases/latest",
 		baseURL, c.config.GitHubOwner, c.config.GitHubRepo)
 

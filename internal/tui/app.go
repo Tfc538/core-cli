@@ -3,9 +3,9 @@ package tui
 import (
 	"fmt"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/Tfc538/core-cli/internal/engine/update"
 	"github.com/Tfc538/core-cli/internal/version"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 // Model is the main Bubble Tea model for the TUI.
@@ -14,8 +14,8 @@ type Model struct {
 	currentVersion string
 
 	// Update status
-	updateInfo     *update.UpdateInfo
-	updateError    string
+	updateInfo       *update.UpdateInfo
+	updateError      string
 	hasCheckedUpdate bool
 	updateInProgress bool
 
