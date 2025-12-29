@@ -12,6 +12,8 @@ import (
 	"github.com/Masterminds/semver/v3"
 )
 
+const defaultAPIBaseURL = "https://cli.api.coreofficialhq.com"
+
 // Checker is responsible for checking GitHub Releases for updates.
 type Checker struct {
 	config CheckerConfig
@@ -20,6 +22,10 @@ type Checker struct {
 
 // NewChecker creates a new update checker.
 func NewChecker(config CheckerConfig) *Checker {
+	if strings.TrimSpace(config.APIBaseURL) == "" {
+		config.APIBaseURL = defaultAPIBaseURL
+	}
+
 	return &Checker{
 		config: config,
 		client: &http.Client{
@@ -59,8 +65,8 @@ func (c *Checker) Check() (*UpdateInfo, error) {
 
 // GitHubRelease represents a GitHub release response.
 type GitHubRelease struct {
-	TagName string       `json:"tag_name"`
-	Body    string       `json:"body"`
+	TagName string        `json:"tag_name"`
+	Body    string        `json:"body"`
 	Assets  []GitHubAsset `json:"assets"`
 }
 
@@ -72,8 +78,9 @@ type GitHubAsset struct {
 
 // getLatestRelease fetches the latest release from GitHub.
 func (c *Checker) getLatestRelease() (*GitHubRelease, error) {
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/latest",
-		c.config.GitHubOwner, c.config.GitHubRepo)
+	baseURL := strings.TrimRight(c.config.APIBaseURL, "/")
+	url := fmt.Sprintf("%s/repos/%s/%s/releases/latest",
+		baseURL, c.config.GitHubOwner, c.config.GitHubRepo)
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {

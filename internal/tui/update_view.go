@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/Tfc538/core-cli/engine/update"
+	"github.com/Tfc538/core-cli/internal/engine/update"
 )
 
 // UpdateView displays the update progress.

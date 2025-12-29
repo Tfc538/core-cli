@@ -5,8 +5,8 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/Tfc538/core-cli/cli"
-	"github.com/Tfc538/core-cli/tui"
+	"github.com/Tfc538/core-cli/internal/cli"
+	"github.com/Tfc538/core-cli/internal/tui"
 )
 
 func main() {

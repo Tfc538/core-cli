@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Tfc538/core-cli/internal/engine/update"
+	"github.com/Tfc538/core-cli/internal/version"
 	"github.com/spf13/cobra"
-	"github.com/Tfc538/core-cli/engine/update"
-	"github.com/Tfc538/core-cli/version"
 )
 
 // NewUpdateApplyCmd creates the `core update apply` command.
@@ -35,6 +35,7 @@ func runUpdateApply(skipConfirm bool) error {
 
 	// First, check for available updates
 	checker := update.NewChecker(update.CheckerConfig{
+		APIBaseURL:     os.Getenv("CORE_UPDATE_API_BASE"),
 		GitHubOwner:    "Tfc538",
 		GitHubRepo:     "core-cli",
 		CurrentVersion: version.Version,

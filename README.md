@@ -123,6 +123,28 @@ Starting update
 ✓ CORE CLI updated to v0.2.0
 ```
 
+## Backend Service
+
+The repo also ships a minimal backend service for local development and future distribution metadata.
+
+### Run Locally
+
+```bash
+go run ./cmd/core-backend
+```
+
+Configuration (optional):
+
+- `CORE_BACKEND_HOST` (default `127.0.0.1`)
+- `CORE_BACKEND_PORT` (default `8080`)
+- `CORE_BACKEND_SHUTDOWN_TIMEOUT` (default `5s`)
+
+### Endpoints
+
+- `GET /healthz`
+- `GET /api/v1/version/latest`
+- `GET /api/v1/version/{version}`
+
 ## Building from Source
 
 ### Prerequisites
@@ -136,7 +158,23 @@ Starting update
 make build VERSION=0.2.0
 ```
 
-This builds the binary for your current platform as `./core`.
+This builds the CLI and backend binaries for your current platform as `./dist/core/core` and `./dist/core-backend/core-backend`.
+
+### Build CLI Only
+
+```bash
+make build-cli VERSION=0.2.0
+```
+
+This builds the CLI binary for your current platform as `./dist/core/core`.
+
+### Build Backend
+
+```bash
+make build-backend VERSION=0.2.0
+```
+
+This builds the backend binary as `./dist/core-backend/core-backend`.
 
 ### Build for All Platforms
 
@@ -145,11 +183,16 @@ make build-all VERSION=0.2.0
 ```
 
 Outputs binaries to `./dist/`:
-- `core-linux-amd64`
-- `core-linux-arm64`
-- `core-darwin-amd64`
-- `core-darwin-arm64`
-- `core-windows-amd64.exe`
+- `dist/core/core-linux-amd64`
+- `dist/core/core-linux-arm64`
+- `dist/core/core-darwin-amd64`
+- `dist/core/core-darwin-arm64`
+- `dist/core/core-windows-amd64.exe`
+- `dist/core-backend/core-backend-linux-amd64`
+- `dist/core-backend/core-backend-linux-arm64`
+- `dist/core-backend/core-backend-darwin-amd64`
+- `dist/core-backend/core-backend-darwin-arm64`
+- `dist/core-backend/core-backend-windows-amd64.exe`
 
 ### Generate Checksums
 
@@ -175,11 +218,15 @@ CORE CLI follows a clean, layered architecture:
 
 ```
 core-cli/
-├── version/              # Version metadata package
-├── engine/update/        # Pure business logic for updates
-├── cli/                  # Cobra command definitions (CLI layer)
-├── tui/                  # Bubble Tea TUI (presentation layer)
-└── main.go               # Entry point (args routing)
+├── cmd/core/             # CLI entry point (args routing)
+├── cmd/core-backend/     # Backend entry point
+└── internal/
+    ├── backend/          # Backend HTTP/API + services
+    ├── cli/              # Cobra command definitions (CLI layer)
+    ├── config/           # Env-based configuration
+    ├── engine/update/    # Pure business logic for updates
+    ├── tui/              # Bubble Tea TUI (presentation layer)
+    └── version/          # Version metadata package
 ```
 
 ### Design Principles
@@ -192,11 +239,12 @@ core-cli/
 
 ### Key Components
 
-- **version/**: Build-time version injection via ldflags
-- **engine/update/checker**: GitHub Releases API integration
-- **engine/update/updater**: Download, verify, and atomic binary replacement
-- **cli/**: Cobra command structure with consistent output formatting
-- **tui/**: Bubble Tea application with status bar and update view
+- **internal/version/**: Build-time version injection via ldflags
+- **internal/backend/**: API handlers, services, and storage/telemetry stubs
+- **internal/engine/update/checker**: GitHub Releases API integration
+- **internal/engine/update/updater**: Download, verify, and atomic binary replacement
+- **internal/cli/**: Cobra command structure with consistent output formatting
+- **internal/tui/**: Bubble Tea application with status bar and update view
 
 ## Updating
 
@@ -224,40 +272,48 @@ Updates are applied safely with:
 ### Project Structure
 
 ```
-version/version.go         # Version constants and Info struct
-version/version_test.go    # Version tests
+cmd/core/main.go                    # CLI entry point with CLI/TUI routing
+cmd/core-backend/main.go            # Backend entry point
 
-engine/update/types.go     # UpdateInfo, UpdateProgress types
-engine/update/checker.go   # GitHub Releases API integration
-engine/update/checker_test.go
-engine/update/updater.go   # Download, verify, replace logic
-engine/update/updater_test.go
+internal/backend/api/               # HTTP handlers + middleware
+internal/backend/service/           # Backend business logic
+internal/backend/storage/           # Interfaces for storage backends
+internal/backend/telemetry/         # Telemetry stubs
+internal/config/backend.go          # Backend env config
+internal/version/version.go         # Version constants and Info struct
+internal/version/version_test.go
 
-cli/root.go                # Root command setup
-cli/version.go             # 'core version' command
-cli/update.go              # 'core update' parent command
-cli/update_check.go        # 'core update check' command
-cli/update_apply.go        # 'core update apply' command
-cli/output.go              # Output formatting utilities
+internal/engine/update/types.go     # UpdateInfo, UpdateProgress types
+internal/engine/update/checker.go   # GitHub Releases API integration
+internal/engine/update/checker_test.go
+internal/engine/update/updater.go   # Download, verify, replace logic
+internal/engine/update/updater_test.go
 
-tui/app.go                 # Main Bubble Tea app
-tui/styles.go              # Lip Gloss styles
-tui/statusbar.go           # Status bar component
-tui/update_view.go         # Update progress view
+internal/cli/root.go                # Root command setup
+internal/cli/version.go             # 'core version' command
+internal/cli/update.go              # 'core update' parent command
+internal/cli/update_check.go        # 'core update check' command
+internal/cli/update_apply.go        # 'core update apply' command
+internal/cli/output.go              # Output formatting utilities
 
-main.go                    # Entry point with CLI/TUI routing
-Makefile                   # Build automation
+internal/tui/app.go                 # Main Bubble Tea app
+internal/tui/styles.go              # Lip Gloss styles
+internal/tui/statusbar.go           # Status bar component
+internal/tui/update_view.go         # Update progress view
+
+Makefile                            # Build automation
 ```
 
 ### Adding New Commands
 
-1. Create `cli/mycmd.go` with `NewMyCmd()` function
-2. Add to root command in `cli/root.go`
+1. Create `internal/cli/mycmd.go` with `NewMyCmd()` function
+2. Add to root command in `internal/cli/root.go`
 3. Follow existing patterns for output and error handling
 
 ### Testing
 
 - Unit tests exist for version, checker, and updater
+- Backend unit and integration tests live under `internal/backend/`
 - Tests use mock HTTP servers for network operations
 - All tests can run offline without external dependencies
 
@@ -268,9 +324,9 @@ Makefile                   # Build automation
 Version is embedded at build time using Go's `-ldflags` flag:
 
 ```bash
--X github.com/Tfc538/core-cli/version.Version=1.0.0
--X github.com/Tfc538/core-cli/version.GitCommit=$(git rev-parse --short HEAD)
--X github.com/Tfc538/core-cli/version.BuildDate=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+-X github.com/Tfc538/core-cli/internal/version.Version=1.0.0
+-X github.com/Tfc538/core-cli/internal/version.GitCommit=$(git rev-parse --short HEAD)
+-X github.com/Tfc538/core-cli/internal/version.BuildDate=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 ```
 
 The Makefile handles this automatically.
@@ -291,6 +347,13 @@ The updater automatically:
 1. Preserves a backup of the current binary (`.old`)
 2. Restores it if replacement fails
 3. Never corrupts or removes your binary
+
+## License
+
+CORE CLI is licensed under the Mozilla Public License 2.0 (MPL-2.0).
+
+For licensing questions or commercial inquiries, contact:
+Tim Gatzke — core@coreofficialhq.com
 
 ### How often are releases published?
 
