@@ -1,10 +1,9 @@
-# CORE CLI v0.1.1
+# CORE CLI v0.1.2
 
 ## Highlights
-- Monorepo layout with separate CLI and backend entrypoints.
-- Backend v0 foundation with health/version endpoints and graceful shutdown.
-- Docker image for backend with distroless runtime.
-- Update checker now targets `https://api-cli.coreofficialhq.com`.
+- Update checks now read the latest version from the Core API and fetch assets from GitHub Releases.
+- New `CORE_GITHUB_API_BASE` env var for targeting a custom GitHub API endpoint.
+- Update checker skips the Core API when configured to use GitHub directly.
 
 ## Binaries
 - `core/core-linux-amd64`
@@ -22,4 +21,5 @@
 - `checksums.txt` (SHA256)
 
 ## Notes
+- Set `CORE_UPDATE_API_BASE` to point at the Core API (used for latest-version checks).
 - Set `CORE_GITHUB_TOKEN` (or `GH_TOKEN`/`GITHUB_TOKEN`) for private repo update checks.
